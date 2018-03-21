@@ -1,0 +1,12 @@
+---
+- name: test with ping
+  ping:
+  register: ping_results
+
+- name: print ping results
+  debug:
+    msg: "{{ ping_results }}"
+
+- name: print host data
+  debug:
+    msg: "Inventory Host {{ inventory_hostname }} has RAM in MB {{ ansible_memtotal_mb }}, OS {{ ansible_lsb.description }}, Kernel {{ ansible_kernel }}, time {{ ansible_date_time.time }}, user {{ ansible_user_id }}, fqdn {{ ansible_fqdn}} & IPv4 {{ ansible_default_ipv4.address }}"

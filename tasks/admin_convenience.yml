@@ -1,0 +1,29 @@
+---
+- name: Ensure sbin dirs are in PATH for user
+  lineinfile:
+    dest: '/home/{{ item.name }}/.profile'
+    regexp: '^PATH="\$PATH:/usr/local/sbin:/usr/sbin:/sbin"'
+    insertafter: EOF
+    line: 'PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"'
+  with_items: '{{ bootstrap__admin_users + ( bootstrap__admin_ansible_user if bootstrap__admin_ansible_sshkey else [] ) }}'
+  when: item.name|d() and (item.convenience|d(bootstrap__admin_convenience))
+
+- name: Create & copy .bash_aliases for user
+  copy:
+    src: .bash_aliases
+    dest: '/home/{{ item.name }}/.bash_aliases'
+    owner: '{{ item.name }}'
+    group: '{{ item.name }}'
+    mode: 0644
+  with_items: '{{ bootstrap__admin_users + ( bootstrap__admin_ansible_user if bootstrap__admin_ansible_sshkey else [] ) }}'
+  when: item.name|d() and (item.convenience|d(bootstrap__admin_convenience))
+
+- name: Create & copy bin dir for user with helper scripts
+  copy:
+    src: bin
+    dest: '/home/{{ item.name }}/'
+    owner: '{{ item.name }}'
+    group: '{{ item.name }}'
+    mode: 0755
+  with_items: '{{ bootstrap__admin_users + ( bootstrap__admin_ansible_user if bootstrap__admin_ansible_sshkey else [] ) }}'
+  when: item.name|d() and (item.convenience|d(bootstrap__admin_convenience))

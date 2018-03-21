@@ -1,0 +1,48 @@
+---
+- name: Gather information about existing users
+  getent:
+    database: 'passwd'
+    split: ':'
+
+- name: Create admin accounts
+  user:
+    name: '{{ item.name }}'
+    state: 'present'
+    system: '{{ (item.system | d(bootstrap__admin_system)) | bool }}'
+    groups: '{{ (item.groups | d(bootstrap__admin_groups)) | join(",") }}'
+    append: True
+    comment: '{{ item.comment | d(getent_passwd[item.name][3] if getent_passwd[item.name]|d() else bootstrap__admin_comment) }}'
+    shell: '{{ item.shell | d(getent_passwd[item.name][5] if getent_passwd[item.name]|d() else bootstrap__admin_shell) }}'
+  with_items: '{{ bootstrap__admin_users + ( bootstrap__admin_ansible_user if bootstrap__admin_ansible_sshkey else [] ) }}'
+  when: item.name|d()
+
+- name: Install ssh public key on admin accounts
+  authorized_key:
+    user: '{{ item.name }}'
+    key: "{{ item.sshkey }}"
+    state: 'present'
+  with_items: '{{ bootstrap__admin_users + ( bootstrap__admin_ansible_user if bootstrap__admin_ansible_sshkey else [] ) }}'
+  when: item.name|d() and (item.sshkey|d())
+
+# requiretty & env_check von hier ist vermutlich nicht nötig?: https://github.com/debops/ansible-bootstrap/blob/master/tasks/main.yml
+- name: Configure ansible-login with passwordless access in sudo
+  lineinfile:
+    dest: '/etc/sudoers.d/10-{{ item.name }}'
+    regexp: '^{{ item.name }}\s'
+    line: '{{ item.name }} ALL = (ALL:ALL) NOPASSWD: SETENV: ALL'
+    state: 'present'
+    create: true
+    owner: 'root'
+    group: 'root'
+    mode: '0440'
+    validate: 'visudo -cf "%s"'
+  with_items: '{{ bootstrap__admin_users + ( bootstrap__admin_ansible_user if bootstrap__admin_ansible_sshkey else [] ) }}'
+  when: item.name|d() and (item.passwordless_sudo|d())
+
+- name: Ensure /etc/sudoers includes /etc/sudoers.d
+  lineinfile:
+    dest: '/etc/sudoers'
+    regexp: '^#includedir\s+/etc/sudoers.d$'
+    line: '#includedir /etc/sudoers.d'
+    state: 'present'
+    validate: 'visudo -cf "%s"'

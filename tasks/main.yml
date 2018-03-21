@@ -1,0 +1,26 @@
+---
+# Abgleitet von: https://github.com/debops/ansible-bootstrap/blob/master/tasks/admin_accounts.yml
+# * Doku der Parameter, siehe: https://docs.debops.org/en/latest/ansible/roles/ansible-bootstrap/docs/defaults-detailed.html#bootstrap-ref-admin-users
+
+- name: Run some tests for debugging
+  import_tasks: tests.yml
+  when: bootstrap__tests|bool
+  tags: [ 'role::bootstrap:tests' ]
+
+- name: Add/Change IPv4 Address
+  import_tasks: network.yml
+  when: bootstrap__network|bool
+  tags: [ 'role::bootstrap:network' ]
+
+- name: Manage System Administrator accounts
+  import_tasks: admin_accounts.yml
+  tags: [ 'role::bootstrap:admin_accounts' ]
+
+- name: Manage Basic System Configuration
+  import_tasks: system.yml
+  when: bootstrap__system|bool
+  tags: [ 'role::bootstrap:system' ]
+
+- name: Convenience for System Administrator accounts
+  import_tasks: admin_convenience.yml
+  tags: [ 'role::bootstrap:admin_convenience' ]

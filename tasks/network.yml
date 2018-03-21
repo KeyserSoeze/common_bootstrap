@@ -1,0 +1,15 @@
+---
+- name: Add/Change IPv4 Address
+  template:
+    src: eth0-inet4-static.j2
+    dest: /etc/network/interfaces.d/eth0-inet4-static
+    owner: root
+    group: root
+    mode: 0644
+  register: network_template
+
+- name: Networking restart
+  service:
+    name: networking
+    state: restarted
+  when: network_template.changed

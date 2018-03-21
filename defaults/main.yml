@@ -1,0 +1,48 @@
+---
+# Run some tests for debugging?
+bootstrap__tests: false
+
+# Add/Change IPv4 with template; also needs bootstrap__ipv4 in host_vars, else error.
+bootstrap__network: false
+#bootstrap__ipv4: ''
+
+# Prüft & korrigiert System-Konfigurationen, die ansonsten schon von virt-install-vm gesetzt werden sollten.
+bootstrap__system: false
+
+# Pakete, die installiert werden, wenn System-Konfigurationen (s.o.) aktiviert ist.
+bootstrap__packages: [ 'unattended-upgrades', 'vim', 'htop' ]
+
+# Erzeugt den folgenden ansible user, wenn hier oder besser in group_vars sshkey gesetzt wird.
+bootstrap__admin_ansible_sshkey: ''
+
+# Macht virt-install-vm sonst schon vorher mit create-ansible-login.sh
+bootstrap__admin_ansible_user:
+  - name: 'ansible-login'
+    system: true
+    groups: []
+    comment: 'ansible login'
+    shell: '/bin/bash'
+    sshkey: "{{ bootstrap__admin_ansible_sshkey }}"
+    passwordless_sudo: true
+    convenience: false
+
+# List of additional user accounts created by the role. See
+# bootstrap__admin_ansible_user above as example & set in group_vars.
+bootstrap__admin_users: []
+
+# Should the admin accounts be system accounts (UID < 1000) if not specified
+# otherwise?
+bootstrap__admin_system: false
+
+# List of local system groups which admin accounts will be added to.
+bootstrap__admin_groups: [ 'adm', 'sudo' ]
+
+# Default comment / GECOS field which is set on the new admin accounts if none
+# is specified.
+bootstrap__admin_comment: 'System Administrator'
+
+# Default shell set on the new admin accounts if none is specified.
+bootstrap__admin_shell: '/bin/bash'
+
+# Ein paar Alias, Pfad-Anpassungen & Helfer
+bootstrap__admin_convenience: true

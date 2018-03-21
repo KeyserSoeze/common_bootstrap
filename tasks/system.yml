@@ -1,0 +1,30 @@
+---
+- name: Ensure essential software is installed
+  package:
+    name: '{{ item }}'
+    state: 'present'
+  with_items: '{{ bootstrap__packages }}'
+
+# Warum wird der Status immer als changed gemeldet? unseen? service/systemd start nötig?
+- name: Ensure unattended-upgrades is set to auto updates
+  debconf:
+    name: unattended-upgrades
+    question: unattended-upgrades/enable_auto_updates
+    vtype: boolean
+    value: true
+
+- name: Ensure SSH login with password is forbidden
+  lineinfile:
+    dest: '/etc/ssh/sshd_config'
+    regexp: '^PasswordAuthentication\s+no$'
+    insertafter: '# Change to no to disable tunnelled clear text passwords'
+    line: 'PasswordAuthentication no'
+  notify: 'SSHD restart'
+
+- name: Ensure modified motd is in place
+  copy:
+    src: motd
+    dest: '/etc/motd'
+    owner: 'root'
+    group: 'root'
+    mode: 0644
