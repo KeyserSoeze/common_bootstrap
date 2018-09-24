@@ -56,6 +56,7 @@ Say the following playbook is called `common_bootstrap.yml`:
       hosts: deploy
       become: true
       vars:
+        ansible_python_interpreter: '/usr/bin/python3'
         admin_users:
           - name: 'adminuser1'
             sshkey: 'ssh-rsa ...'
@@ -63,9 +64,8 @@ Say the following playbook is called `common_bootstrap.yml`:
         bootstrap__admin_users: "{{ hostvars[inventory_hostname]['bootstrap__admin_users'] | d(admin_users) }}"
         bootstrap__admin_ansible_sshkey: 'ssh-rsa ...'
         bootstrap__system: true
-
       roles:
-        - keysersoeze.common_bootstrap
+        - KeyserSoeze.common_bootstrap
 
 Then you can run this playbook as shown in the following Usage-Examples:
 
