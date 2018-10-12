@@ -10,7 +10,7 @@ bootstrap__network: false
 bootstrap__system: false
 
 # Pakete, die installiert werden, wenn System-Konfigurationen (s.o.) aktiviert ist.
-bootstrap__packages: [ 'unattended-upgrades', 'vim', 'htop' ]
+bootstrap__packages: [ 'unattended-upgrades', 'vim', 'htop', 'man-db', 'less' ]
 
 # Erzeugt den folgenden ansible user, wenn hier oder besser in group_vars sshkey gesetzt wird.
 bootstrap__admin_ansible_sshkey: ''
